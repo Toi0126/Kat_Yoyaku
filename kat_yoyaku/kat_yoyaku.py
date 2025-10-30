@@ -132,7 +132,8 @@ def capture_and_compare(driver, xpath, old_file, new_file, message):
 
     if not np.array_equal(old_image, new_image):
         print(f"画像が変更されました: {old_path} -> {new_path}")
-        send_line_notify(message, new_path)
+        image_url = upload_image_to_s3(new_path, BUCKET_NAME, os.path.basename(new_path))
+        send_line_notify(message, image_url)
     else:
         print(f"画像に変更はありません: {old_path} と {new_path}")
 
