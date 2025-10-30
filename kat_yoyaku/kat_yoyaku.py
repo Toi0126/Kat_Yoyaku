@@ -174,8 +174,8 @@ def check_availability():
 
     # まずは左側のメニューをクリック
     q = driver.find_element(By.CLASS_NAME, 'public_left')
-    q.click()
 
+    q.click()
     time.sleep(4) 
 
     # 施設の空き情報をクリック
