@@ -221,15 +221,21 @@ def check_availability():
 def main():
     now = datetime.datetime.now(JST)
     print(f"スクリプト開始: {now.strftime('%Y-%m-%d %H:%M:%S')} JST")
+    send_line_notify("システムが起動しました。")
+    i = 0
     while True:
         now = datetime.datetime.now(JST)
         if 6 <= now.hour < 24:
             print("空き情報を確認します...")
             check_availability()
+            if i % 30 == 0:
+                send_line_notify("システムは正常に稼働しています。")
         else:
-            if now.minute == 0:
+            if i % 30 == 0:
+                send_line_notify("システムは正常に稼働しています。")
                 print("現在は深夜時間帯のため、処理をスキップします。")
         time.sleep(120)
+        i = (i + 1)
 
 
 if __name__ == "__main__":
