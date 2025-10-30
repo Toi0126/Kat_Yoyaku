@@ -14,7 +14,7 @@ import requests
 import numpy as np
 import cv2
 import boto3
-from botocore.exceptions import NoCredentialsError
+from botocore.exceptions import NoCredentialsError, NoRegionError, ClientError
 from selenium.webdriver.common.by import By
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -39,6 +39,9 @@ HEADERS = {
 IMAGE_DIR = "C:\\works\\Kat_Yoyaku\\image"
 JST = datetime.timezone(datetime.timedelta(hours=9), "JST")
 
+# S3のリージョン（未設定時は ap-southeast-2 を既定に）
+S3_REGION = os.getenv("AWS_DEFAULT_REGION", "ap-southeast-2")
+
 # 画像保存先ディレクトリの存在を保証
 os.makedirs(IMAGE_DIR, exist_ok=True)
 
@@ -56,14 +59,22 @@ def hash_file(path: str) -> str:
 
 def upload_image_to_s3(local_image_path: str, bucket_name: str, object_name: str) -> str | None:
     """画像をAWS S3にアップロード"""
-    s3 = boto3.client("s3")
+    s3 = boto3.client("s3", region_name=S3_REGION)
     try:
         s3.upload_file(local_image_path, bucket_name, object_name, ExtraArgs={"ACL": "public-read"})
-        return f"https://{bucket_name}.s3.ap-southeast-2.amazonaws.com/{object_name}"
+        # バケットのリージョンに合わせたURLを返す
+        return f"https://{bucket_name}.s3.{S3_REGION}.amazonaws.com/{object_name}"
     except FileNotFoundError:
         print(f"ファイルが見つかりません: {local_image_path}")
     except NoCredentialsError:
-        print("認証情報が見つかりません。")
+        print("認証情報が見つかりません。AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY を設定してください。")
+        print(".env に追記するか、PowerShellで setx を使ってユーザー環境変数を設定できます。")
+    except NoRegionError:
+        print("AWSのリージョンが設定されていません。AWS_DEFAULT_REGION を設定してください。")
+    except ClientError as e:
+        print(f"S3アップロードでエラーが発生しました: {e}")
+    except Exception as e:
+        print(f"予期しないエラーが発生しました: {e}")
     return None
 
 

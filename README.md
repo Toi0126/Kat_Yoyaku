@@ -39,6 +39,10 @@ BUCKET_NAME=line-bot-images-bucket
 LINE_API_URL=https://api.line.me/v2/bot/message/push
 ACCESS_TOKEN=あなたのアクセストークン
 USER_ID=あなたのユーザーID
+# AWS 資格情報（S3へ画像をアップロードする場合に必須）
+AWS_ACCESS_KEY_ID=あなたのアクセスキーID
+AWS_SECRET_ACCESS_KEY=あなたのシークレットアクセスキー
+AWS_DEFAULT_REGION=ap-southeast-2
 ```
 
 # 🧪 コード品質チェック・型チェック・テスト
@@ -62,6 +66,20 @@ uv run pytest
 # Webスクレイピングの実行
 uv run python .\kat_yoyaku\kat_yoyaku.py
 ```
+
+## 🧰 トラブルシュート
+
+- 「認証情報が見つかりません。」が表示される場合
+	- `.env` に `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_DEFAULT_REGION` が設定されているか確認してください。
+	- PowerShellで永続設定する場合（ユーザー環境変数）:
+		```powershell
+		setx AWS_ACCESS_KEY_ID "xxxxxxxx"
+		setx AWS_SECRET_ACCESS_KEY "yyyyyyyy"
+		setx AWS_DEFAULT_REGION "ap-southeast-2"
+		```
+		設定後はターミナルを再起動してください。
+	- 付与すべき最小権限の例（S3）: `s3:PutObject`, `s3:PutObjectAcl`（public-readを使う場合）, `s3:ListBucket`（任意）
+	- バケットのリージョンが `.env` の `AWS_DEFAULT_REGION` と一致しているか確認してください。
 
 # 📁 フォルダ構成例
 
