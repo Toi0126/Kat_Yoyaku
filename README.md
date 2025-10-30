@@ -32,6 +32,15 @@ C:\hogehoge\Python312\python.exe -m venv .venv
 uv sync
 ```
 
+# 5️⃣ 環境変数の設定
+`.env` ファイルを作成し、以下の内容を記述してください。
+```
+BUCKET_NAME=line-bot-images-bucket
+LINE_API_URL=https://api.line.me/v2/bot/message/push
+ACCESS_TOKEN=あなたのアクセストークン
+USER_ID=あなたのユーザーID
+```
+
 # 🧪 コード品質チェック・型チェック・テスト
 
 ```powershell

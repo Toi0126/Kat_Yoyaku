@@ -19,21 +19,23 @@ from selenium.webdriver.common.by import By
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.core.utils import ChromeType
 import platform
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ==============================
 # 定数定義
 # ==============================
-BUCKET_NAME = "line-bot-images-bucket"
-LINE_API_URL = "https://api.line.me/v2/bot/message/push"
-ACCESS_TOKEN = "33wOmQjQIFVbl/ng40GTPq8f1SgxG75mayOpG8j90AEzyUkbXGcewkG+WO0SKxCpUMes1fo0K3TlW5VgDR4jwaqhBiWGMOEoKWCqbpluAIky1OyP1yoXFCo7QDe7/mAWe1rNowbhAGMfWsV/eAlHMwdB04t89/1O/w1cDnyilFU="
-USER_ID = "U852b7b0dff51e24b81bb171b589b1a7b"
+BUCKET_NAME = os.getenv("BUCKET_NAME")
+LINE_API_URL = os.getenv("LINE_API_URL")
+ACCESS_TOKEN = os.getenv("ACCESS_TOKEN")
+USER_ID = os.getenv("USER_ID")
 HEADERS = {
     "Content-Type": "application/json",
     "Authorization": f"Bearer {ACCESS_TOKEN}",
 }
-IMAGE_DIR = "image"
+IMAGE_DIR = "C:\works\Kat_Yoyaku\image"
 JST = datetime.timezone(datetime.timedelta(hours=9), "JST")
 
 
@@ -96,7 +98,7 @@ def initialize_driver() -> webdriver.Chrome:
 
     os.makedirs(cache_path, exist_ok=True)
     driver_path = ChromeDriverManager(
-        path=cache_path, chrome_type=ChromeType.GOOGLE
+        path=cache_path
     ).install()
 
     service = ChromeService(driver_path)
@@ -113,18 +115,31 @@ def capture_and_compare(driver, xpath, old_file, new_file, message):
     element.click()
     time.sleep(4)
 
-    old_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), old_file)
-    new_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), new_file)
+    old_path = os.path.join(IMAGE_DIR, old_file)  # IMAGE_DIR を使用してパスを修正
+    new_path = os.path.join(IMAGE_DIR, new_file)  # IMAGE_DIR を使用してパスを修正
 
-    old_image = cv2.imread(old_path) if os.path.exists(old_path) else None
+    # 初回実行時に比較対象のスクリーンショットがない場合、現在のスクリーンショットを保存
+    if not os.path.exists(old_path):
+        print(f"初回実行: {old_path} が存在しません。新しいスクリーンショットを保存します。")
+        driver.save_screenshot(old_path)
+        print(f"初回スクリーンショット保存: {old_path}")
+        return
+
+    old_image = cv2.imread(old_path)
     driver.save_screenshot(new_path)
     new_image = cv2.imread(new_path)
 
-    if old_image is None or not np.array_equal(old_image, new_image):
-        print("画像が変更されました。LINE通知を送信します。")
+    if not np.array_equal(old_image, new_image):
+        print(f"画像が変更されました: {old_path} -> {new_path}")
         send_line_notify(message, new_path)
     else:
-        print("画像に変更はありません。")
+        print(f"画像に変更はありません: {old_path} と {new_path}")
+
+    # タイムスタンプ付きスクリーンショット名生成
+    timestamp = datetime.datetime.now(JST).strftime("%Y%m%d%H%M%S")
+    new_file_with_timestamp = os.path.join(IMAGE_DIR, f"{timestamp}_{new_file}")
+    os.rename(new_path, new_file_with_timestamp)
+    print(f"スクリーンショット保存: {new_file_with_timestamp}")
 
 
 # ==============================
