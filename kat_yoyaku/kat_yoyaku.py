@@ -172,71 +172,51 @@ def check_availability():
     driver.maximize_window()
     time.sleep(4)
 
-    
-    time.sleep(4) 
-
-    # 4) Get an object of the search box
+    # まずは左側のメニューをクリック
     q = driver.find_element(By.CLASS_NAME, 'public_left')
-
-    # 5) Send the key to the search box
     q.click()
 
     time.sleep(4) 
 
-    # 施設の空き情報
-
+    # 施設の空き情報をクリック
     test='//*[@id="disp"]/center/form/table[3]/tbody/tr[1]/td/table/tbody/tr[2]/td[1]/table/tbody/tr[2]/td/a/img'
-
     t = driver.find_element(By.XPATH, test)
-
     t.click()
-    time.sleep(4) 
+    time.sleep(4)
 
+    # 施設予約のクリック
     test2='//*[@id="disp"]/center/form/table[2]/tbody/tr[3]/td/a/img'
-
     t2 = driver.find_element(By.XPATH, test2)
-
     t2.click()
-    time.sleep(4) 
+    time.sleep(4)
 
-
-
-
+    # 施設予約のクリック
     test3='//*[@id="disp"]/center/form/table[3]/tbody/tr[1]/td[2]/a'
-
     t3 = driver.find_element(By.XPATH, test3)
-
     t3.click()
-    time.sleep(4) 
+    time.sleep(4)
 
-
+    # つづいて各施設の確認
     base='//*[@id="disp"]/center/form/table[4]/tbody/tr[1]/td[2]/a'
-
     b = driver.find_element(By.XPATH, base)
-
     b.click()
-    time.sleep(4) 
+    time.sleep(4)
 
-
+    # 野球場
     place='//*[@id="disp"]/center/form/table[4]/tbody/tr[1]/td[2]/a'
-
     p = driver.find_element(By.XPATH, place)
-
     p.click()
-    time.sleep(4) 
+    time.sleep(4)
 
-
+    # 月変更
     nm='//*[@id="disp"]/center/form/table[4]/tbody/tr/td[2]/table/tbody/tr[1]/td/a[2]/img'
-
     nm1 = driver.find_element(By.XPATH, nm)
-
     nm1.click()
-    time.sleep(4) 
+    time.sleep(4)
 
+    # 日付選択
     jl8='//*[@id="disp"]/center/form/table[4]/tbody/tr/td[2]/table/tbody/tr[5]/td[1]/a/img'
-
     j8 = driver.find_element(By.XPATH, jl8)
-
     j8.click()
     time.sleep(4) 
 
