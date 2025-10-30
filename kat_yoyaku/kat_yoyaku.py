@@ -136,11 +136,9 @@ def capture_and_compare(driver, xpath, old_file, new_file, message):
     else:
         print(f"画像に変更はありません: {old_path} と {new_path}")
 
-    # タイムスタンプ付きスクリーンショット名生成
-    timestamp = datetime.datetime.now(JST).strftime("%Y%m%d%H%M%S")
-    new_file_with_timestamp = os.path.join(IMAGE_DIR, f"{timestamp}_{new_file}")
-    os.rename(new_path, new_file_with_timestamp)
-    print(f"スクリーンショット保存: {new_file_with_timestamp}")
+    # new_path を old_path にリネームして保存
+    os.rename(new_path, old_path)
+    print(f"スクリーンショット保存: {old_path}")
 
 
 def check_system_status(driver):
