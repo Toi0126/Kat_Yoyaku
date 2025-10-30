@@ -85,7 +85,7 @@ def initialize_driver() -> webdriver.Chrome:
     """ヘッドレスモードでWebDriverを初期化（Mac / Win対応）"""
 
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless=new")  # Chrome >=109用のヘッドレスモード
+    # options.add_argument("--headless=new")  # Chrome >=109用のヘッドレスモード
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
@@ -172,6 +172,74 @@ def check_availability():
     driver.maximize_window()
     time.sleep(4)
 
+    
+    time.sleep(4) 
+
+    # 4) Get an object of the search box
+    q = driver.find_element(By.CLASS_NAME, 'public_left')
+
+    # 5) Send the key to the search box
+    q.click()
+
+    time.sleep(4) 
+
+    # 施設の空き情報
+
+    test='//*[@id="disp"]/center/form/table[3]/tbody/tr[1]/td/table/tbody/tr[2]/td[1]/table/tbody/tr[2]/td/a/img'
+
+    t = driver.find_element(By.XPATH, test)
+
+    t.click()
+    time.sleep(4) 
+
+    test2='//*[@id="disp"]/center/form/table[2]/tbody/tr[3]/td/a/img'
+
+    t2 = driver.find_element(By.XPATH, test2)
+
+    t2.click()
+    time.sleep(4) 
+
+
+
+
+    test3='//*[@id="disp"]/center/form/table[3]/tbody/tr[1]/td[2]/a'
+
+    t3 = driver.find_element(By.XPATH, test3)
+
+    t3.click()
+    time.sleep(4) 
+
+
+    base='//*[@id="disp"]/center/form/table[4]/tbody/tr[1]/td[2]/a'
+
+    b = driver.find_element(By.XPATH, base)
+
+    b.click()
+    time.sleep(4) 
+
+
+    place='//*[@id="disp"]/center/form/table[4]/tbody/tr[1]/td[2]/a'
+
+    p = driver.find_element(By.XPATH, place)
+
+    p.click()
+    time.sleep(4) 
+
+
+    nm='//*[@id="disp"]/center/form/table[4]/tbody/tr/td[2]/table/tbody/tr[1]/td/a[2]/img'
+
+    nm1 = driver.find_element(By.XPATH, nm)
+
+    nm1.click()
+    time.sleep(4) 
+
+    jl8='//*[@id="disp"]/center/form/table[4]/tbody/tr/td[2]/table/tbody/tr[5]/td[1]/a/img'
+
+    j8 = driver.find_element(By.XPATH, jl8)
+
+    j8.click()
+    time.sleep(4) 
+
     capture_and_compare(
         driver,
         '//*[@id="disp"]/center/form/table[3]/tbody/tr[1]/td/table/tbody/tr[2]/td[1]/table/tbody/tr[2]/td/a/img',
@@ -225,7 +293,7 @@ def main():
     i = 0
     while True:
         now = datetime.datetime.now(JST)
-        if 6 <= now.hour < 24:
+        if 7 <= now.hour < 24:
             print("空き情報を確認します...")
             check_availability()
             if i % 30 == 0:
