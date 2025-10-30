@@ -98,9 +98,9 @@ def initialize_driver() -> webdriver.Chrome:
         cache_path = os.path.expanduser("~/.wdm_cache")
 
     os.makedirs(cache_path, exist_ok=True)
-    driver_path = ChromeDriverManager(
-        path=cache_path
-    ).install()
+
+    # ChromeDriverManager の初期化から `path` 引数を削除
+    driver_path = ChromeDriverManager().install()
 
     service = ChromeService(driver_path)
     driver = webdriver.Chrome(service=service, options=options)
@@ -143,6 +143,18 @@ def capture_and_compare(driver, xpath, old_file, new_file, message):
     print(f"スクリーンショット保存: {new_file_with_timestamp}")
 
 
+def check_system_status(driver):
+    """システム稼働状況を確認する"""
+    try:
+        body_text = driver.find_element(By.TAG_NAME, "body").text
+        if "ただいまシステムが停止" in body_text:
+            print("システムが停止中です。処理をスキップします。")
+            return False
+    except Exception as e:
+        print(f"システム稼働状況の確認中にエラーが発生しました: {e}")
+    return True
+
+
 # ==============================
 # 施設ごとの確認
 # ==============================
@@ -151,6 +163,12 @@ def check_availability():
     driver = initialize_driver()
     driver.get("https://rsv.shisetsu.city.katsushika.lg.jp/katsushika/web/menu.jsp")
     time.sleep(4)
+
+    # システム稼働状況を確認
+    if not check_system_status(driver):
+        driver.quit()
+        return
+
     driver.maximize_window()
     time.sleep(4)
 
