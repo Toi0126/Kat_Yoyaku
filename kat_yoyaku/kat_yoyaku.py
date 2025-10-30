@@ -35,7 +35,8 @@ HEADERS = {
     "Content-Type": "application/json",
     "Authorization": f"Bearer {ACCESS_TOKEN}",
 }
-IMAGE_DIR = "C:\works\Kat_Yoyaku\image"
+# "C:\works\Kat_Yoyaku\image"
+IMAGE_DIR = "C:\\works\\Kat_Yoyaku\\image"
 JST = datetime.timezone(datetime.timedelta(hours=9), "JST")
 
 
@@ -200,11 +201,16 @@ def check_availability():
 # メインループ
 # ==============================
 def main():
+    now = datetime.datetime.now(JST)
+    print(f"スクリプト開始: {now.strftime('%Y-%m-%d %H:%M:%S')} JST")
     while True:
         now = datetime.datetime.now(JST)
         if 6 <= now.hour < 24:
             print("空き情報を確認します...")
             check_availability()
+        else:
+            if now.minute == 0:
+                print("現在は深夜時間帯のため、処理をスキップします。")
         time.sleep(120)
 
 
