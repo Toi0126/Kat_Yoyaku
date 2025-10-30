@@ -39,6 +39,9 @@ HEADERS = {
 IMAGE_DIR = "C:\\works\\Kat_Yoyaku\\image"
 JST = datetime.timezone(datetime.timedelta(hours=9), "JST")
 
+# 画像保存先ディレクトリの存在を保証
+os.makedirs(IMAGE_DIR, exist_ok=True)
+
 
 # ==============================
 # ユーティリティ関数
@@ -85,7 +88,7 @@ def initialize_driver() -> webdriver.Chrome:
     """ヘッドレスモードでWebDriverを初期化（Mac / Win対応）"""
 
     options = webdriver.ChromeOptions()
-    # options.add_argument("--headless=new")  # Chrome >=109用のヘッドレスモード
+    options.add_argument("--headless=new")  # Chrome >=109用のヘッドレスモード
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
@@ -108,6 +111,37 @@ def initialize_driver() -> webdriver.Chrome:
 
 
 # ==============================
+# フルページスクリーンショット補助
+# ==============================
+def take_fullpage_screenshot(driver: webdriver.Chrome, path: str) -> bool:
+    """ページ全体を収まるようにウィンドウサイズを調整して保存する。
+    Chrome Headlessではmaximize_windowの効果が薄いので、DOMサイズに合わせて明示的にresizeする。
+    """
+    try:
+        # DOMサイズを取得（互換性を考慮して最大値をとる）
+        width = driver.execute_script(
+            "return Math.max(document.body.scrollWidth, document.documentElement.scrollWidth, document.body.offsetWidth, document.documentElement.offsetWidth, document.documentElement.clientWidth);"
+        )
+        height = driver.execute_script(
+            "return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, document.body.offsetHeight, document.documentElement.offsetHeight, document.documentElement.clientHeight);"
+        )
+
+        # 過度に大きい場合の安全弁（Chromeの制限回避）。必要に応じて調整。
+        max_height = 16000
+        if height > max_height:
+            height = max_height
+
+        # 先頭へスクロールしてからリサイズ
+        driver.execute_script("window.scrollTo(0, 0);")
+        driver.set_window_size(int(width), int(height))
+        time.sleep(0.5)
+        return driver.save_screenshot(path)
+    except Exception as e:
+        print(f"フルページスクリーンショット取得に失敗しました: {e}")
+        return False
+
+
+# ==============================
 # 画像比較処理
 # ==============================
 def capture_and_compare(driver, xpath, old_file, new_file, message):
@@ -121,19 +155,33 @@ def capture_and_compare(driver, xpath, old_file, new_file, message):
         element2.click()
         time.sleep(4)
 
-    old_path = os.path.join(IMAGE_DIR, old_file)  # IMAGE_DIR を使用してパスを修正
-    new_path = os.path.join(IMAGE_DIR, new_file)  # IMAGE_DIR を使用してパスを修正
+    # 呼び出し元が "image/01.png" のようにサブフォルダ付きで渡しても安全にする
+    old_path = os.path.join(IMAGE_DIR, os.path.basename(old_file))
+    new_path = os.path.join(IMAGE_DIR, os.path.basename(new_file))
 
     # 初回実行時に比較対象のスクリーンショットがない場合、現在のスクリーンショットを保存
     if not os.path.exists(old_path):
         print(f"初回実行: {old_path} が存在しません。新しいスクリーンショットを保存します。")
-        driver.save_screenshot(old_path)
+        ok = take_fullpage_screenshot(driver, old_path)
+        if not ok:
+            print(f"スクリーンショット保存に失敗しました（パス/権限を確認してください）: {old_path}")
+            return
         print(f"初回スクリーンショット保存: {old_path}")
         return
 
     old_image = cv2.imread(old_path)
-    driver.save_screenshot(new_path)
+    ok = take_fullpage_screenshot(driver, new_path)
+    if not ok:
+        print(f"スクリーンショット保存に失敗しました: {new_path}")
+        return
     new_image = cv2.imread(new_path)
+
+    if old_image is None:
+        print(f"既存画像の読み込みに失敗しました: {old_path}")
+        return
+    if new_image is None:
+        print(f"新規画像の読み込みに失敗しました: {new_path}")
+        return
 
     if not np.array_equal(old_image, new_image):
         print(f"画像が変更されました: {old_path} -> {new_path}")
@@ -143,8 +191,11 @@ def capture_and_compare(driver, xpath, old_file, new_file, message):
         print(f"画像に変更はありません: {old_path} と {new_path}")
 
     # new_path を old_path にリネームして保存
-    os.rename(new_path, old_path)
-    print(f"スクリーンショット保存: {old_path}")
+    try:
+        os.replace(new_path, old_path)  # Windowsでの上書きに強い
+        print(f"スクリーンショット保存: {old_path}")
+    except Exception as e:
+        print(f"スクリーンショットの更新に失敗しました: {e}")
 
 
 def check_system_status(driver):
