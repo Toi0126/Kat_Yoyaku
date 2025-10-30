@@ -184,25 +184,25 @@ def check_availability():
     t.click()
     time.sleep(4)
 
-    # 施設予約のクリック
+    # 利用目的のクリック
     test2='//*[@id="disp"]/center/form/table[2]/tbody/tr[3]/td/a/img'
     t2 = driver.find_element(By.XPATH, test2)
     t2.click()
     time.sleep(4)
 
-    # 施設予約のクリック
+    # スポーツジャンルのクリック
     test3='//*[@id="disp"]/center/form/table[3]/tbody/tr[1]/td[2]/a'
     t3 = driver.find_element(By.XPATH, test3)
     t3.click()
     time.sleep(4)
 
-    # つづいて各施設の確認
+    # スポーツのクリック
     base='//*[@id="disp"]/center/form/table[4]/tbody/tr[1]/td[2]/a'
     b = driver.find_element(By.XPATH, base)
     b.click()
     time.sleep(4)
 
-    # 野球場
+    # 野球場A
     place='//*[@id="disp"]/center/form/table[4]/tbody/tr[1]/td[2]/a'
     p = driver.find_element(By.XPATH, place)
     p.click()
