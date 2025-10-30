@@ -144,7 +144,8 @@ def capture_and_compare(driver, xpath, old_file, new_file, message):
 def check_system_status(driver):
     """システム稼働状況を確認する"""
     try:
-        body_text = driver.find_element(By.TAG_NAME, "body").text
+        body_element = driver.find_element(By.TAG_NAME, "body")
+        body_text = body_element.text if body_element else ""
         if "ただいまシステムが停止" in body_text:
             print("システムが停止中です。処理をスキップします。")
             return False
