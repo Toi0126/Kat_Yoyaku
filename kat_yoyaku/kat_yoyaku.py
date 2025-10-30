@@ -112,9 +112,14 @@ def initialize_driver() -> webdriver.Chrome:
 # ==============================
 def capture_and_compare(driver, xpath, old_file, new_file, message):
     """スクリーンショットを撮影し、比較してLINE通知を送信"""
-    element = driver.find_element(By.XPATH, xpath)
-    element.click()
-    time.sleep(4)
+    if xpath != "":
+        element = driver.find_element(By.XPATH, '//*[@id="disp"]/center/form/table[3]/tbody/tr/td[2]/a/img')
+        element.click()
+        time.sleep(4)
+
+        element2 = driver.find_element(By.XPATH, xpath)
+        element2.click()
+        time.sleep(4)
 
     old_path = os.path.join(IMAGE_DIR, old_file)  # IMAGE_DIR を使用してパスを修正
     new_path = os.path.join(IMAGE_DIR, new_file)  # IMAGE_DIR を使用してパスを修正
@@ -222,7 +227,7 @@ def check_availability():
 
     capture_and_compare(
         driver,
-        '//*[@id="disp"]/center/form/table[3]/tbody/tr[1]/td/table/tbody/tr[2]/td[1]/table/tbody/tr[2]/td/a/img',
+        "",
         "image/01.png",
         "image/06.png",
         "荒川河川敷 荒川小菅",
