@@ -160,7 +160,7 @@ def capture_and_compare(driver, xpath, old_file, new_file, message):
     if xpath != "":
         element = driver.find_element(By.XPATH, '//*[@id="disp"]/center/form/table[3]/tbody/tr/td[2]/a/img')
         element.click()
-        time.sleep(4)
+        time.sleep(5)
 
         element2 = driver.find_element(By.XPATH, xpath)
         element2.click()
