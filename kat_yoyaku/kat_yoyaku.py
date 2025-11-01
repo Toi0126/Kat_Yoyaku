@@ -205,6 +205,7 @@ def capture_and_compare(driver, xpath, old_file, new_file, message):
     try:
         os.replace(new_path, old_path)  # Windowsでの上書きに強い
         print(f"スクリーンショット保存: {old_path}")
+        time.sleep(2)
     except Exception as e:
         print(f"スクリーンショットの更新に失敗しました: {e}")
 
